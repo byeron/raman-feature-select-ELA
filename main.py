@@ -53,7 +53,6 @@ def manual(
     # indexを文字列に変換
     df.index = df.index.astype(str)
     if remove_state:
-        print(type(df.index.unique()[0]))
         print(f"Remove states: {remove_state}")
         # 解析対象に含めないstate(行)を削除
         df = df.drop(remove_state)
@@ -77,7 +76,7 @@ def manual(
         fig = plt.figure(figsize=(9, 6))
         ax = fig.add_subplot(111)
         ax.plot(origin)
-        ax.plot(indices, origin[indices], "ro")
+        ax.plot(indices, origin.iloc[indices], "ro")
         ax.set_xticks(np.arange(0, len(origin), 100))
         ax.set_xticklabels(np.arange(0, len(origin), 100))
         plt.tight_layout()
@@ -113,7 +112,6 @@ def peak(
     # indexを文字列に変換
     df.index = df.index.astype(str)
     if remove_state:
-        print(type(df.index.unique()[0]))
         print(f"Remove states: {remove_state}")
         # 解析対象に含めないstate(行)を削除
         df = df.drop(remove_state)
@@ -169,7 +167,6 @@ def levene(
     # indexを文字列に変換
     df.index = df.index.astype(str)
     if remove_state:
-        print(type(df.index.unique()[0]))
         print(f"Remove states: {remove_state}")
         # 解析対象に含めないstate(行)を削除
         df = df.drop(remove_state)
@@ -191,7 +188,7 @@ def levene(
         fig = plt.figure(figsize=(9, 6))
         ax = fig.add_subplot(111)
         ax.plot(origin)
-        ax.plot(_indices, origin[_indices], "ro")
+        ax.plot(_indices, origin.iloc[_indices], "ro")
         ax.set_xticks(np.arange(0, len(origin), 100))
         ax.set_xticklabels(np.arange(0, len(origin), 100))
         # y軸を対数スケールにする
@@ -231,7 +228,6 @@ def pc1(
     # indexを文字列に変換
     df.index = df.index.astype(str)
     if remove_state:
-        print(type(df.index.unique()[0]))
         print(f"Remove states: {remove_state}")
         # 解析対象に含めないstate(行)を削除
         df = df.drop(remove_state)
@@ -286,7 +282,6 @@ def cv(
     # indexを文字列に変換
     df.index = df.index.astype(str)
     if remove_state:
-        print(type(df.index.unique()[0]))
         print(f"Remove states: {remove_state}")
         # 解析対象に含めないstate(行)を削除
         df = df.drop(remove_state)
@@ -339,7 +334,6 @@ def robust_cv(
     # indexを文字列に変換
     df.index = df.index.astype(str)
     if remove_state:
-        print(type(df.index.unique()[0]))
         print(f"Remove states: {remove_state}")
         # 解析対象に含めないstate(行)を削除
         df = df.drop(remove_state)
@@ -395,7 +389,6 @@ def mvi(  # Median Variablity Index, 中央値変動指数
     # indexを文字列に変換
     df.index = df.index.astype(str)
     if remove_state:
-        print(type(df.index.unique()[0]))
         print(f"Remove states: {remove_state}")
         # 解析対象に含めないstate(行)を削除
         df = df.drop(remove_state)
@@ -463,7 +456,7 @@ def line_plot(indices, origin, key, outdir):
     fig = plt.figure(figsize=(9, 6))
     ax = fig.add_subplot(111)
     ax.plot(origin)
-    ax.plot(indices, origin[indices], "ro")
+    ax.plot(indices, origin.iloc[indices], "ro")
     ax.set_xticks(np.arange(0, len(origin), 100))
     ax.set_xticklabels(np.arange(0, len(origin), 100))
     plt.tight_layout()
