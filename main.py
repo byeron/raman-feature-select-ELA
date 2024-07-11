@@ -7,6 +7,8 @@ import typer
 from scipy.signal import find_peaks
 from scipy.stats import levene as levene_test
 
+import elapy
+
 app = typer.Typer()
 options = {"path": "", "outdir": "output", "imgdir": "img"}
 
@@ -70,6 +72,11 @@ def manual(
 
     display_data_per_pattern(bins)
 
+    h, W = elapy.fit_exact(bins)
+    acc1, acc2 = elapy.calc_accuracy(h, W, bins)
+
+    typer.echo(f"Accuracy: {acc1}, {acc2}")
+
     if viz:
         import matplotlib.pyplot as plt
 
@@ -132,6 +139,12 @@ def peak(
     # display the number of data / activity patterns
     display_data_per_pattern(bins)
 
+    # Caluculate the accuracy
+    h, W = elapy.fit_exact(bins)
+    acc1, acc2 = elapy.calc_accuracy(h, W, bins)
+
+    typer.echo(f"Accuracy: {acc1}, {acc2}")
+
     if viz:
         line_plot(peak_indices, origin, "peak", options["imgdir"])
 
@@ -183,6 +196,12 @@ def levene(
     bins.to_csv(f"{outdir}/bins_levene.csv")
 
     display_data_per_pattern(bins)
+
+    # Caluculate the accuracy
+    h, W = elapy.fit_exact(bins)
+    acc1, acc2 = elapy.calc_accuracy(h, W, bins)
+
+    typer.echo(f"Accuracy: {acc1}, {acc2}")
 
     if viz:
         fig = plt.figure(figsize=(9, 6))
@@ -245,6 +264,12 @@ def pc1(
 
     display_data_per_pattern(bins)
 
+    # Caluculate the accuracy
+    h, W = elapy.fit_exact(bins)
+    acc1, acc2 = elapy.calc_accuracy(h, W, bins)
+
+    typer.echo(f"Accuracy: {acc1}, {acc2}")
+
     if viz:
         line_plot(indices, weights, "pc1", options["imgdir"])
 
@@ -296,6 +321,12 @@ def cv(
     typer.echo(bins)
 
     bins.to_csv(f"{outdir}/bins_cv.csv")
+
+    # Caluculate the accuracy
+    h, W = elapy.fit_exact(bins)
+    acc1, acc2 = elapy.calc_accuracy(h, W, bins)
+
+    typer.echo(f"Accuracy: {acc1}, {acc2}")
 
     if viz:
         line_plot(cv_indices, origin, "cv", options["imgdir"])
@@ -356,6 +387,12 @@ def robust_cv(
 
     bins.to_csv(f"{outdir}/bins_robust_cv.csv")
 
+    # Caluculate the accuracy
+    h, W = elapy.fit_exact(bins)
+    acc1, acc2 = elapy.calc_accuracy(h, W, bins)
+
+    typer.echo(f"Accuracy: {acc1}, {acc2}")
+
     if viz:
         line_plot(cv_indices, origin, "robust_cv", options["imgdir"])
 
@@ -404,6 +441,12 @@ def mvi(  # Median Variablity Index, 中央値変動指数
 
     bins.to_csv(f"{outdir}/bins_mvi.csv")
 
+    # Caluculate the accuracy
+    h, W = elapy.fit_exact(bins)
+    acc1, acc2 = elapy.calc_accuracy(h, W, bins)
+
+    typer.echo(f"Accuracy: {acc1}, {acc2}")
+
     if viz:
         line_plot(_indices, origin, "mvi", options["imgdir"])
 
@@ -421,7 +464,6 @@ def display_data_per_pattern(bins):
     n_bits = bins.shape[0]
     data_per_pattern = get_data_per_pattern(bins)
     print(f"data/patterns > {data_per_pattern} ({n_data} / 2^{n_bits})")
-    print()
 
 
 def select_pc1(
