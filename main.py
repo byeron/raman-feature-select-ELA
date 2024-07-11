@@ -19,7 +19,12 @@ def callback(path: str, outdir: str = "output", imgdir: str = "img"):
 
 
 @app.command()
-def run(outdir: str = typer.Option(options["outdir"], help="Output directory")):
+def run(
+    outdir: str = typer.Option(
+        options["outdir"],
+        help="Output directory",
+    )
+):
     typer.echo(f"Output directory: {outdir}")
 
 
@@ -27,8 +32,13 @@ def run(outdir: str = typer.Option(options["outdir"], help="Output directory")):
 def manual(
     x: Optional[list[str]] = typer.Option(None, help="List of features"),
     outdir: str = typer.Option(options["outdir"], help="Output directory"),
-    gtet: bool = typer.Option(True, help="Greater than(False) or equal(True, default) to the mean"),
-    negative_inactive: bool = typer.Option(False, help="Inactive features set to -1"),
+    gtet: bool = typer.Option(
+        True, help="Greater than(False) or equal(True, default) to the mean"
+    ),
+    negative_inactive: bool = typer.Option(
+        False,
+        help="Inactive features set to -1",
+    ),
     viz: bool = typer.Option(False, help="Visualize the peaks"),
 ):
     if x is None:
@@ -36,7 +46,12 @@ def manual(
         return
     df = pd.read_csv(options["path"], index_col=0, header=0)
     indices, origin = select_manual(df, x)
-    bins = binarize(df, indices, gtet=gtet, negative_inactive=negative_inactive)
+    bins = binarize(
+        df,
+        indices,
+        gtet=gtet,
+        negative_inactive=negative_inactive,
+    )
     typer.echo(bins)
 
     bins.to_csv(f"{outdir}/bins_manual.csv")
@@ -59,20 +74,46 @@ def manual(
 @app.command()
 def peak(
     top_n: int = typer.Option(7, help="Number of peaks"),
+    remove_state: Optional[list[str]] = typer.Option(
+        None,
+        help="List of states to remove",
+    ),
     outdir: str = typer.Option(options["outdir"], help="Output directory"),
-    distance: float = typer.Option(10.0, help="Minimum distance between peaks"),
+    distance: float = typer.Option(
+        10.0,
+        help="Minimum distance between peaks",
+    ),
     delta: float = typer.Option(0.1, help="Step for peak search"),
     top: float = typer.Option(None, help="Max value for peak search"),
     bottom: float = typer.Option(None, help="Min value for peak search"),
-    gtet: bool = typer.Option(True, help="Greater than(False) or equal(True, default) to the mean"),
-    negative_inactive: bool = typer.Option(False, help="Inactive features set to -1"),
+    gtet: bool = typer.Option(
+        True, help="Greater than(False) or equal(True, default) to the mean"
+    ),
+    negative_inactive: bool = typer.Option(
+        False,
+        help="Inactive features set to -1",
+    ),
     viz: bool = typer.Option(False, help="Visualize the peaks"),
 ):
     df = pd.read_csv(options["path"], index_col=0, header=0)
+
+    # indexを文字列に変換
+    df.index = df.index.astype(str)
+    if remove_state:
+        print(type(df.index.unique()[0]))
+        print(f"Remove states: {remove_state}")
+        # 解析対象に含めないstate(行)を削除
+        df = df.drop(remove_state)
+
     peak_indices, origin = select_peak(
         df, top_n, distance=distance, delta=delta, top=top, bottom=bottom
     )
-    bins = binarize(df, peak_indices, gtet=gtet,  negative_inactive=negative_inactive)
+    bins = binarize(
+        df,
+        peak_indices,
+        gtet=gtet,
+        negative_inactive=negative_inactive,
+    )
     typer.echo(bins)
 
     bins.to_csv(f"{outdir}/bins_peak.csv")
@@ -87,20 +128,46 @@ def peak(
 @app.command()
 def levene(
     top_n: int = typer.Option(7, help="Top nth lowest p-value features"),
+    remove_state: Optional[list[str]] = typer.Option(
+        None,
+        help="List of states to remove",
+    ),
     outdir: str = typer.Option(options["outdir"], help="Output directory"),
-    distance: float = typer.Option(10.0, help="Minimum distance between peaks"),
+    distance: float = typer.Option(
+        10.0,
+        help="Minimum distance between peaks",
+    ),
     delta: float = typer.Option(0.001, help="Step for peak search"),
     top: float = typer.Option(None, help="Max value for peak search"),
     bottom: float = typer.Option(None, help="Min value for peak search"),
-    gtet: bool = typer.Option(True, help="Greater than(False) or equal(True, default) to the mean"),
-    negative_inactive: bool = typer.Option(False, help="Inactive features set to -1"),
+    gtet: bool = typer.Option(
+        True, help="Greater than(False) or equal(True, default) to the mean"
+    ),
+    negative_inactive: bool = typer.Option(
+        False,
+        help="Inactive features set to -1",
+    ),
     viz: bool = typer.Option(False, help="Visualize the peaks"),
 ):
     # Levene検定をもとに特徴量を選択する
     typer.echo("Processing...")
     df = pd.read_csv(options["path"], index_col=0, header=0)
+
+    # indexを文字列に変換
+    df.index = df.index.astype(str)
+    if remove_state:
+        print(type(df.index.unique()[0]))
+        print(f"Remove states: {remove_state}")
+        # 解析対象に含めないstate(行)を削除
+        df = df.drop(remove_state)
+
     _indices, origin = select_levene(df, top_n, distance, delta, top, bottom)
-    bins = binarize(df, _indices, gtet=gtet, negative_inactive=negative_inactive)
+    bins = binarize(
+        df,
+        _indices,
+        gtet=gtet,
+        negative_inactive=negative_inactive,
+    )
     typer.echo(bins)
 
     bins.to_csv(f"{outdir}/bins_levene.csv")
@@ -124,19 +191,45 @@ def levene(
 @app.command()
 def pc1(
     top_n: int = typer.Option(7, help="Top nth lowest p-value features"),
+    remove_state: Optional[list[str]] = typer.Option(
+        None,
+        help="List of states to remove",
+    ),
     outdir: str = typer.Option(options["outdir"], help="Output directory"),
-    distance: float = typer.Option(10.0, help="Minimum distance between peaks"),
+    distance: float = typer.Option(
+        10.0,
+        help="Minimum distance between peaks",
+    ),
     delta: float = typer.Option(0.1, help="Step for peak search"),
     top: float = typer.Option(None, help="Max value for peak search"),
     bottom: float = typer.Option(None, help="Min value for peak search"),
-    gtet: bool = typer.Option(True, help="Greater than(False) or equal(True, default) to the mean"),
-    negative_inactive: bool = typer.Option(False, help="Inactive features set to -1"),
+    gtet: bool = typer.Option(
+        True, help="Greater than(False) or equal(True, default) to the mean"
+    ),
+    negative_inactive: bool = typer.Option(
+        False,
+        help="Inactive features set to -1",
+    ),
     viz: bool = typer.Option(False, help="Visualize the peaks"),
 ):
     # PCAの第一主成分の重みの上位を選択する
     df = pd.read_csv(options["path"], index_col=0, header=0)
+
+    # indexを文字列に変換
+    df.index = df.index.astype(str)
+    if remove_state:
+        print(type(df.index.unique()[0]))
+        print(f"Remove states: {remove_state}")
+        # 解析対象に含めないstate(行)を削除
+        df = df.drop(remove_state)
+
     indices, weights = select_pc1(df, top_n, distance, delta, top, bottom)
-    bins = binarize(df, indices, gtet=gtet, negative_inactive=negative_inactive)
+    bins = binarize(
+        df,
+        indices,
+        gtet=gtet,
+        negative_inactive=negative_inactive,
+    )
     typer.echo(bins)
 
     bins.to_csv(f"{outdir}/bins_pc1.csv")
@@ -159,9 +252,7 @@ def display_data_per_pattern(bins):
     n_data = bins.shape[1]
     n_bits = bins.shape[0]
     data_per_pattern = get_data_per_pattern(bins)
-    print(
-            f"data/patterns > {data_per_pattern} ({n_data} / 2^{n_bits})"
-    )
+    print(f"data/patterns > {data_per_pattern} ({n_data} / 2^{n_bits})")
     print()
 
 
@@ -195,20 +286,49 @@ def select_pc1(
 
 @app.command()
 def cv(
-    top_n: int = typer.Option(7, help="Top n coefficient of variation features"),
+    top_n: int = typer.Option(
+        7,
+        help="Top n coefficient of variation features",
+    ),
+    remove_state: Optional[list[str]] = typer.Option(
+        None,
+        help="List of states to remove",
+    ),
     outdir: str = typer.Option(options["outdir"], help="Output directory"),
-    distance: float = typer.Option(10.0, help="Minimum distance between peaks"),
+    distance: float = typer.Option(
+        10.0,
+        help="Minimum distance between peaks",
+    ),
     delta: float = typer.Option(0.1, help="Step for peak search"),
     top: float = typer.Option(None, help="Max value for peak search"),
     bottom: float = typer.Option(None, help="Min value for peak search"),
-    gtet: bool = typer.Option(True, help="Greater than(False) or equal(True, default) to the mean"),
-    negative_inactive: bool = typer.Option(False, help="Inactive features set to -1"),
+    gtet: bool = typer.Option(
+        True, help="Greater than(False) or equal(True, default) to the mean"
+    ),
+    negative_inactive: bool = typer.Option(
+        False,
+        help="Inactive features set to -1",
+    ),
     viz: bool = typer.Option(False, help="Visualize the peaks"),
 ):
     # 変動係数をもとに特徴量を選択する
     df = pd.read_csv(options["path"], index_col=0, header=0)
+
+    # indexを文字列に変換
+    df.index = df.index.astype(str)
+    if remove_state:
+        print(type(df.index.unique()[0]))
+        print(f"Remove states: {remove_state}")
+        # 解析対象に含めないstate(行)を削除
+        df = df.drop(remove_state)
+
     cv_indices, origin = select_cv(df, top_n, distance, delta, top, bottom)
-    bins = binarize(df, cv_indices, gtet=gtet, negative_inactive=negative_inactive)
+    bins = binarize(
+        df,
+        cv_indices,
+        gtet=gtet,
+        negative_inactive=negative_inactive,
+    )
     typer.echo(bins)
 
     bins.to_csv(f"{outdir}/bins_cv.csv")
@@ -221,12 +341,20 @@ def cv(
 def robust_cv(
     top_n: int = typer.Option(7, help="Top n coefficient of variation features"),
     outdir: str = typer.Option(options["outdir"], help="Output directory"),
-    distance: float = typer.Option(10.0, help="Minimum distance between peaks"),
+    distance: float = typer.Option(
+        10.0,
+        help="Minimum distance between peaks",
+    ),
     delta: float = typer.Option(0.1, help="Step for peak search"),
     top: float = typer.Option(None, help="Max value for peak search"),
     bottom: float = typer.Option(None, help="Min value for peak search"),
-    gtet: bool = typer.Option(True, help="Greater than(False) or equal(True, default) to the mean"),
-    negative_inactive: bool = typer.Option(False, help="Inactive features set to -1"),
+    gtet: bool = typer.Option(
+        True, help="Greater than(False) or equal(True, default) to the mean"
+    ),
+    negative_inactive: bool = typer.Option(
+        False,
+        help="Inactive features set to -1",
+    ),
     viz: bool = typer.Option(False, help="Visualize the peaks"),
 ):
     # ロバストな変動係数をもとに特徴量を選択する
@@ -244,18 +372,44 @@ def robust_cv(
 @app.command()
 def mvi(  # Median Variablity Index, 中央値変動指数
     top_n: int = typer.Option(7, help="Top nth lowest p-value features"),
+    remove_state: Optional[list[str]] = typer.Option(
+        None,
+        help="List of states to remove",
+    ),
     outdir: str = typer.Option(options["outdir"], help="Output directory"),
-    distance: float = typer.Option(10.0, help="Minimum distance between peaks"),
+    distance: float = typer.Option(
+        10.0,
+        help="Minimum distance between peaks",
+    ),
     delta: float = typer.Option(0.1, help="Step for peak search"),
     top: float = typer.Option(None, help="Max value for peak search"),
     bottom: float = typer.Option(None, help="Min value for peak search"),
-    gtet: bool = typer.Option(True, help="Greater than(False) or equal(True, default) to the mean"),
-    negative_inactive: bool = typer.Option(False, help="Inactive features set to -1"),
+    gtet: bool = typer.Option(
+        True, help="Greater than(False) or equal(True, default) to the mean"
+    ),
+    negative_inactive: bool = typer.Option(
+        False,
+        help="Inactive features set to -1",
+    ),
     viz: bool = typer.Option(False, help="Visualize the peaks"),
 ):
     df = pd.read_csv(options["path"], index_col=0, header=0)
+
+    # indexを文字列に変換
+    df.index = df.index.astype(str)
+    if remove_state:
+        print(type(df.index.unique()[0]))
+        print(f"Remove states: {remove_state}")
+        # 解析対象に含めないstate(行)を削除
+        df = df.drop(remove_state)
+
     _indices, origin = select_mvi(df, top_n, distance, delta, top, bottom)
-    bins = binarize(df, _indices, gtet=gtet, negative_inactive=negative_inactive)
+    bins = binarize(
+        df,
+        _indices,
+        gtet=gtet,
+        negative_inactive=negative_inactive,
+    )
     typer.echo(bins)
 
     bins.to_csv(f"{outdir}/bins_mvi.csv")
@@ -328,7 +482,10 @@ def select_robust_cv(
     return indices, cv
 
 
-def select_manual(df: pd.DataFrame, features: list[str]) -> tuple[list[int], pd.Series]:
+def select_manual(
+    df: pd.DataFrame,
+    features: list[str],
+) -> tuple[list[int], pd.Series]:
     indices = [df.columns.get_loc(i) for i in features]
     return indices, df.mean(axis=0)
 
@@ -436,7 +593,12 @@ def detect_peaks(series, top_n, distance, delta, top, bottom, reverse=False):
     return None
 
 
-def binarize(df, peak_indices, gtet=True, negative_inactive=False):  # gtet: greater than or equal to
+def binarize(
+    df,
+    peak_indices,
+    gtet=True,  # gtet: greater than or equal to
+    negative_inactive=False,
+):  # gtet: greater than or equal to
     peaks = df.iloc[:, peak_indices].copy()
     _index = peaks.index
     _columns = peaks.columns
