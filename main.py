@@ -253,50 +253,6 @@ def pc1(
         line_plot(indices, weights, "pc1", options["imgdir"])
 
 
-def get_data_per_pattern(bins):
-    n_data = bins.shape[1]
-    n_bits = bins.shape[0]
-    n_patterns = 2**n_bits
-    data_per_pattern = n_data / n_patterns
-    return data_per_pattern
-
-
-def display_data_per_pattern(bins):
-    n_data = bins.shape[1]
-    n_bits = bins.shape[0]
-    data_per_pattern = get_data_per_pattern(bins)
-    print(f"data/patterns > {data_per_pattern} ({n_data} / 2^{n_bits})")
-    print()
-
-
-def select_pc1(
-    df: pd.DataFrame,
-    top_n: int,
-    distance: float = 10.0,
-    delta: float = 0.1,
-    top: float = None,
-    bottom: float = None,
-) -> tuple[list[int], pd.Series]:
-    from sklearn.decomposition import PCA
-
-    pca = PCA(n_components=1)
-    pca.fit(df)
-    weights = pca.components_[0]
-
-    weights = np.abs(weights)  # 重みの絶対値を取る
-
-    if top is None:
-        top = weights.max()
-    if bottom is None:
-        bottom = weights.min()
-
-    indices = detect_peaks(weights, top_n, distance, delta, top, bottom)
-    if indices is None:
-        raise ValueError("Peaks not found")
-
-    return indices, pd.Series(weights, index=df.columns)
-
-
 @app.command()
 def cv(
     top_n: int = typer.Option(
@@ -457,6 +413,50 @@ def mvi(  # Median Variablity Index, 中央値変動指数
 
     if viz:
         line_plot(_indices, origin, "mvi", options["imgdir"])
+
+
+def get_data_per_pattern(bins):
+    n_data = bins.shape[1]
+    n_bits = bins.shape[0]
+    n_patterns = 2**n_bits
+    data_per_pattern = n_data / n_patterns
+    return data_per_pattern
+
+
+def display_data_per_pattern(bins):
+    n_data = bins.shape[1]
+    n_bits = bins.shape[0]
+    data_per_pattern = get_data_per_pattern(bins)
+    print(f"data/patterns > {data_per_pattern} ({n_data} / 2^{n_bits})")
+    print()
+
+
+def select_pc1(
+    df: pd.DataFrame,
+    top_n: int,
+    distance: float = 10.0,
+    delta: float = 0.1,
+    top: float = None,
+    bottom: float = None,
+) -> tuple[list[int], pd.Series]:
+    from sklearn.decomposition import PCA
+
+    pca = PCA(n_components=1)
+    pca.fit(df)
+    weights = pca.components_[0]
+
+    weights = np.abs(weights)  # 重みの絶対値を取る
+
+    if top is None:
+        top = weights.max()
+    if bottom is None:
+        bottom = weights.min()
+
+    indices = detect_peaks(weights, top_n, distance, delta, top, bottom)
+    if indices is None:
+        raise ValueError("Peaks not found")
+
+    return indices, pd.Series(weights, index=df.columns)
 
 
 def line_plot(indices, origin, key, outdir):
