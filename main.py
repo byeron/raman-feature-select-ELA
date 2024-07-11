@@ -41,6 +41,8 @@ def manual(
 
     bins.to_csv(f"{outdir}/bins_manual.csv")
 
+    display_data_per_pattern(bins)
+
     if viz:
         import matplotlib.pyplot as plt
 
@@ -75,6 +77,9 @@ def peak(
 
     bins.to_csv(f"{outdir}/bins_peak.csv")
 
+    # display the number of data / activity patterns
+    display_data_per_pattern(bins)
+
     if viz:
         line_plot(peak_indices, origin, "peak", options["imgdir"])
 
@@ -99,6 +104,8 @@ def levene(
     typer.echo(bins)
 
     bins.to_csv(f"{outdir}/bins_levene.csv")
+
+    display_data_per_pattern(bins)
 
     if viz:
         fig = plt.figure(figsize=(9, 6))
@@ -134,8 +141,28 @@ def pc1(
 
     bins.to_csv(f"{outdir}/bins_pc1.csv")
 
+    display_data_per_pattern(bins)
+
     if viz:
         line_plot(indices, weights, "pc1", options["imgdir"])
+
+
+def get_data_per_pattern(bins):
+    n_data = bins.shape[1]
+    n_bits = bins.shape[0]
+    n_patterns = 2**n_bits
+    data_per_pattern = n_data / n_patterns
+    return data_per_pattern
+
+
+def display_data_per_pattern(bins):
+    n_data = bins.shape[1]
+    n_bits = bins.shape[0]
+    data_per_pattern = get_data_per_pattern(bins)
+    print(
+            f"data/patterns > {data_per_pattern} ({n_data} / 2^{n_bits})"
+    )
+    print()
 
 
 def select_pc1(
