@@ -31,6 +31,10 @@ def run(
 @app.command()
 def manual(
     x: Optional[list[str]] = typer.Option(None, help="List of features"),
+    remove_state: Optional[list[str]] = typer.Option(
+        None,
+        help="List of states to remove",
+    ),
     outdir: str = typer.Option(options["outdir"], help="Output directory"),
     gtet: bool = typer.Option(
         True, help="Greater than(False) or equal(True, default) to the mean"
@@ -45,6 +49,15 @@ def manual(
         typer.echo("No features selected")
         return
     df = pd.read_csv(options["path"], index_col=0, header=0)
+
+    # indexを文字列に変換
+    df.index = df.index.astype(str)
+    if remove_state:
+        print(type(df.index.unique()[0]))
+        print(f"Remove states: {remove_state}")
+        # 解析対象に含めないstate(行)を削除
+        df = df.drop(remove_state)
+
     indices, origin = select_manual(df, x)
     bins = binarize(
         df,
@@ -339,7 +352,14 @@ def cv(
 
 @app.command()
 def robust_cv(
-    top_n: int = typer.Option(7, help="Top n coefficient of variation features"),
+    top_n: int = typer.Option(
+        7,
+        help="Top n coefficient of variation features",
+    ),
+    remove_state: Optional[list[str]] = typer.Option(
+        None,
+        help="List of states to remove",
+    ),
     outdir: str = typer.Option(options["outdir"], help="Output directory"),
     distance: float = typer.Option(
         10.0,
@@ -359,8 +379,29 @@ def robust_cv(
 ):
     # ロバストな変動係数をもとに特徴量を選択する
     df = pd.read_csv(options["path"], index_col=0, header=0)
-    cv_indices, origin = select_robust_cv(df, top_n, distance, delta, top, bottom)
-    bins = binarize(df, cv_indices, gtet=gtet, negative_inactive=negative_inactive)
+
+    # indexを文字列に変換
+    df.index = df.index.astype(str)
+    if remove_state:
+        print(type(df.index.unique()[0]))
+        print(f"Remove states: {remove_state}")
+        # 解析対象に含めないstate(行)を削除
+        df = df.drop(remove_state)
+
+    cv_indices, origin = select_robust_cv(
+        df,
+        top_n,
+        distance,
+        delta,
+        top,
+        bottom,
+    )
+    bins = binarize(
+        df,
+        cv_indices,
+        gtet=gtet,
+        negative_inactive=negative_inactive,
+    )
     typer.echo(bins)
 
     bins.to_csv(f"{outdir}/bins_robust_cv.csv")
