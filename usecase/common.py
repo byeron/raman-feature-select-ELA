@@ -9,7 +9,7 @@ from usecase.pc1 import select_pc1
 from usecase.levene import select_levene
 from usecase.mvi import select_mvi
 from usecase.peak import select_peak
-import elapy
+from elapy import elapy
 
 
 def binarize(
