@@ -168,4 +168,4 @@ img/*
 !img/.gitkeep
 output/*
 !output/.gitkeep
-
+elapy/*.png

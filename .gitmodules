@@ -1,0 +1,3 @@
+[submodule "elapy"]
+	path = elapy
+	url = https://github.com/okumakito/elapy.git
