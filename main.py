@@ -23,9 +23,9 @@ app.add_typer(mvi, name="mvi")
 @app.callback()
 def callback(
     ctx: typer.Context,
-    remove_state: Optional[list[str]] = typer.Option(
+    exclude_state: Optional[list[str]] = typer.Option(
         None,
-        help="List of states to remove",
+        help="List of exclude states for calculation",
     ),
     outdir: str = typer.Option(
         "output",
@@ -55,12 +55,16 @@ def callback(
         False,
         help="Inactive features set to -1",
     ),
+    ignore_for_avg: Optional[list[str]] = typer.Option(
+        None,
+        help="List of ignore states for average calculation",
+    ),
     viz: bool = typer.Option(False, help="Visualize the peaks"),
     imgdir: str = typer.Option("img", help="Image directory"),
 ):
     common_options_callback(
         ctx,
-        remove_state,
+        exclude_state,
         outdir,
         distance,
         delta,
@@ -68,6 +72,7 @@ def callback(
         bottom,
         gtet,
         negative_inactive,
+        ignore_for_avg,
         viz,
         imgdir,
     )
