@@ -17,18 +17,28 @@ def binarize(
     peak_indices,
     gtet=True,  # gtet: greater than or equal to
     negative_inactive=False,
-):  # gtet: greater than or equal to
+    ignore_for_avg=[],
+):
     peaks = df.iloc[:, peak_indices].copy()
+    if ignore_for_avg:
+        # ignore_for_avgに含まれる行を除外して平均を計算
+        _peaks = peaks.copy()
+        _peaks = _peaks.drop(ignore_for_avg)
+        means = _peaks.mean(axis=0)
+    else:
+        means = peaks.mean(axis=0)
+    print("means:")
+    print(f"{means.iloc[:]}")
+
     _index = peaks.index
     _columns = peaks.columns
     peaks = peaks.to_numpy()
-    means = peaks.mean(axis=0)
 
     for i in range(len(means)):
         if gtet:
-            peaks[:, i] = peaks[:, i] >= means[i]
+            peaks[:, i] = peaks[:, i] >= means.iloc[i]
         else:
-            peaks[:, i] = peaks[:, i] > means[i]
+            peaks[:, i] = peaks[:, i] > means.iloc[i]
     peaks_bin = peaks.astype(int)
 
     if negative_inactive:
@@ -80,6 +90,7 @@ def run_common(
         indices,
         gtet=options.gtet,
         negative_inactive=options.negative_inactive,
+        ignore_for_avg=options.ignore_for_avg,
     )
     typer.echo(bins)
     bins.to_csv(f"{options.outdir}/bins_{mode}.csv")

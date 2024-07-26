@@ -13,6 +13,7 @@ class CommonOptions:
         bottom: float,
         gtet: bool,
         negative_inactive: bool,
+        ignore_for_avg: Optional[list[str]],
         viz: bool,
         imgdir: str,
     ):
@@ -24,6 +25,7 @@ class CommonOptions:
         self.bottom = bottom
         self.gtet = gtet
         self.negative_inactive = negative_inactive
+        self.ignore_for_avg = ignore_for_avg
         self.viz = viz
         self.imgdir = imgdir
 
@@ -55,6 +57,10 @@ def common_options_callback(
         False,
         help="Inactive features set to -1",
     ),
+    ignore_for_avg: Optional[list[str]] = typer.Option(
+        None,
+        help="List of states to ignore for average",
+    ),
     viz: bool = typer.Option(False, help="Visualize the peaks"),
     imgdir: str = typer.Option("img", help="Image directory"),
 ):
@@ -67,6 +73,7 @@ def common_options_callback(
         bottom=bottom,
         gtet=gtet,
         negative_inactive=negative_inactive,
+        ignore_for_avg=ignore_for_avg,
         viz=viz,
         imgdir=imgdir,
     )

@@ -55,6 +55,10 @@ def callback(
         False,
         help="Inactive features set to -1",
     ),
+    ignore_for_avg: Optional[list[str]] = typer.Option(
+        None,
+        help="List of ignore states for average calculation",
+    ),
     viz: bool = typer.Option(False, help="Visualize the peaks"),
     imgdir: str = typer.Option("img", help="Image directory"),
 ):
@@ -68,6 +72,7 @@ def callback(
         bottom,
         gtet,
         negative_inactive,
+        ignore_for_avg,
         viz,
         imgdir,
     )
