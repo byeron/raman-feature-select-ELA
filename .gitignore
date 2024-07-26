@@ -169,3 +169,4 @@ img/*
 output/*
 !output/.gitkeep
 elapy/*.png
+*.png

@@ -91,7 +91,7 @@ def run_common(
     typer.echo(f"Accuracy:\t{acc1}, {acc2}")
     display_data_per_pattern(bins)
 
-    return indices, origin
+    return bins, indices, origin
 
 
 def line_plot(indices, origin, mode, outdir):
