@@ -23,9 +23,9 @@ app.add_typer(mvi, name="mvi")
 @app.callback()
 def callback(
     ctx: typer.Context,
-    remove_state: Optional[list[str]] = typer.Option(
+    exclude_state: Optional[list[str]] = typer.Option(
         None,
-        help="List of states to remove",
+        help="List of exclude states for calculation",
     ),
     outdir: str = typer.Option(
         "output",
@@ -64,7 +64,7 @@ def callback(
 ):
     common_options_callback(
         ctx,
-        remove_state,
+        exclude_state,
         outdir,
         distance,
         delta,
