@@ -1,5 +1,7 @@
 import typer
 from typing import Optional
+import pandas as pd
+import numpy as np
 
 from ui.manual import manual
 from ui.peak import peak
@@ -8,6 +10,7 @@ from ui.pc1 import pc1
 from ui.cv import cv
 from ui.robust_cv import robust_cv
 from ui.mvi import mvi
+from ui.random_forest import random_forest
 from domain.common_option import common_options_callback
 
 app = typer.Typer()
@@ -18,6 +21,26 @@ app.add_typer(pc1, name="pc1")
 app.add_typer(cv, name="cv")
 app.add_typer(robust_cv, name="robust-cv")
 app.add_typer(mvi, name="mvi")
+app.add_typer(random_forest, name="random-forest")
+
+
+@app.command()
+def testdata(
+    row: int = typer.Option(100, help="The number of row(samples)"),
+    col: int = typer.Option(10, help="The number of column(features)"),
+    path: str = typer.Option(
+        "data/testdata.csv", help="The path of the output file"
+    ),
+):
+    df = pd.DataFrame(
+        np.random.randn(row, col),
+        columns=[f"col_{i}" for i in range(col)],
+        index=np.random.choice(["A", "B", "C"], row, p=[0.5, 0.3, 0.2]),
+    )
+    df = df.sort_index()
+    typer.echo(df)
+    df.to_csv(path)
+    typer.echo(f"Saved to {path}")
 
 
 @app.callback()
