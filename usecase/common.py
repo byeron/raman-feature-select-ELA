@@ -9,6 +9,7 @@ from usecase.pc1 import select_pc1
 from usecase.levene import select_levene
 from usecase.mvi import select_mvi
 from usecase.peak import select_peak
+from usecase.random_forest import select_random_forest
 from elapy import elapy
 
 
@@ -47,6 +48,48 @@ def binarize(
 
     peaks_bin = pd.DataFrame(peaks_bin, index=_index, columns=_columns)
     return peaks_bin.T
+
+
+def run_common_rf(
+        path: str,
+        top_n,
+        options,
+        n_estimators: int,
+        random_state: int,
+        criterion: str,
+        max_depth: int,
+        min_samples_leaf: int,
+        bootstrap: bool,
+):
+    df = pd.read_csv(path, index_col=0, header=0)
+    indices, origin = select_random_forest(
+        df,
+        top_n,
+        n_estimators,
+        random_state,
+        criterion,
+        max_depth,
+        min_samples_leaf,
+        bootstrap,
+    )
+
+    bins = binarize(
+        df,
+        indices,
+        gtet=options.gtet,
+        negative_inactive=options.negative_inactive,
+        ignore_for_avg=options.ignore_for_avg,
+    )
+    typer.echo(bins)
+    bins.to_csv(f"{options.outdir}/bins_rf.csv")
+
+    h, W = elapy.fit_exact(bins)
+    acc1, acc2 = elapy.calc_accuracy(h, W, bins)
+
+    typer.echo(f"Accuracy:\t{acc1}, {acc2}")
+    display_data_per_pattern(bins)
+
+    return bins, indices, origin
 
 
 def run_common(
