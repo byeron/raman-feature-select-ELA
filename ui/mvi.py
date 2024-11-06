@@ -37,12 +37,16 @@ def ela(
         None,
         help="Threshold for energy",
     ),
+    weighted_count: bool = typer.Option(
+        False,
+        help="Use weighted count for ELA",
+    ),
 ):
     options = get_common_options(ctx)
     bins, _, _ = run_common(path, top_n, mode, options)
 
     # ELAを計算する
-    run_ela(bins, energy_threshold=energy_th)
+    run_ela(bins, energy_threshold=energy_th, weighted_count=weighted_count)
 
 
 if __name__ == "__main__":

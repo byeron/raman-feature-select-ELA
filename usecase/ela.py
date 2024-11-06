@@ -88,6 +88,7 @@ def count_x_in_each_y(
     y: str = "state_no",
     normalize: bool = False
 ):
+    print(data.loc[:, [x, y]])
     increments = calc_increments(data, x, y, normalize)
     counter = {}
     for _x, _y in data.loc[:, [x, y]].values:
@@ -102,6 +103,7 @@ def count_x_in_each_y(
         k: {k_: float(v_) for k_, v_ in v.items()} for k, v in counter.items()
     }
     count = pd.DataFrame(counter).T
+    print(count)
     ratio = count.div(count.sum(axis=1), axis=0)
     return count, ratio
 
@@ -119,6 +121,9 @@ def calc_el(data):
     ela.plot_discon_graph(D)
     ela.plot_landscape(D)
     ela.plot_trans(freq, trans, trans2)
+    n, k = data.shape
+    th = ela.calc_depth_threshold(n, k)
+    print(f"Depth threshold: {th}")
 
     return graph, (acc1, acc2)
 
@@ -132,7 +137,7 @@ def plot_stack_bar(
 ):
     fig = plt.figure(figsize=(12, 8))
     ax = fig.add_subplot(111)
-    data.plot(kind="bar", stacked=True, ax=ax)
+    data.plot(kind="bar", stacked=True, ax=ax, edgecolor="white")
     ax.set_xlabel(x)
     ax.set_ylabel(y)
     ax.legend(title=legend_name)
@@ -140,15 +145,15 @@ def plot_stack_bar(
     fig.savefig(output_path)
 
 
-def run_ela(data, energy_threshold=None):
+def run_ela(data, energy_threshold=None, weighted_count=False):
     graph, accs = calc_el(data)
     # print(accs[0], accs[1])
     print(graph)
 
     bind_data = bind_state_label_with_state_no(data, graph)
 
-    count, ratio = count_state_no_in_each_label(bind_data, normalize=True, energy_threshold=energy_threshold)
-    count2, ratio2 = count_label_in_each_state(bind_data, normalize=True, energy_threshold=energy_threshold)
+    count, ratio = count_state_no_in_each_label(bind_data, normalize=weighted_count, energy_threshold=energy_threshold)
+    count2, ratio2 = count_label_in_each_state(bind_data, normalize=weighted_count, energy_threshold=energy_threshold)
 
     plot_stack_bar(ratio, x="Label", legend_name="State no.", output_path="fig_ratio_state_no.png")
     plot_stack_bar(ratio2, x="State no.", legend_name="Label", output_path="fig_ratio_label.png")

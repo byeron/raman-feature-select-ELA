@@ -74,6 +74,10 @@ def callback(
         True,
         help="Greater than(False) or equal(True, default) to the mean",
     ),
+    robust_th: bool = typer.Option(
+        False,
+        help="mean or median",
+    ),
     negative_inactive: bool = typer.Option(
         False,
         help="Inactive features set to -1",
@@ -94,6 +98,7 @@ def callback(
         top,
         bottom,
         gtet,
+        robust_th,
         negative_inactive,
         ignore_for_avg,
         viz,

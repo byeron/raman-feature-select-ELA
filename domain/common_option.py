@@ -12,6 +12,7 @@ class CommonOptions:
         top: float,
         bottom: float,
         gtet: bool,
+        robust_th: bool,
         negative_inactive: bool,
         ignore_for_avg: Optional[list[str]],
         viz: bool,
@@ -24,6 +25,7 @@ class CommonOptions:
         self.top = top
         self.bottom = bottom
         self.gtet = gtet
+        self.robust_th = robust_th
         self.negative_inactive = negative_inactive
         self.ignore_for_avg = ignore_for_avg
         self.viz = viz
@@ -53,6 +55,10 @@ def common_options_callback(
         True,
         help="Greater than(False) or equal(True, default) to the mean",
     ),
+    robust_th: bool = typer.Option(
+        False,
+        help="mean or median",
+    ),
     negative_inactive: bool = typer.Option(
         False,
         help="Inactive features set to -1",
@@ -72,6 +78,7 @@ def common_options_callback(
         top=top,
         bottom=bottom,
         gtet=gtet,
+        robust_th=robust_th,
         negative_inactive=negative_inactive,
         ignore_for_avg=ignore_for_avg,
         viz=viz,
