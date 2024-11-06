@@ -19,28 +19,44 @@ def binarize(
     gtet=True,  # gtet: greater than or equal to
     negative_inactive=False,
     ignore_for_avg=[],
+    robust=False,
 ):
     peaks = df.iloc[:, peak_indices].copy()
     if ignore_for_avg:
         # ignore_for_avgに含まれる行を除外して平均を計算
         _peaks = peaks.copy()
         _peaks = _peaks.drop(ignore_for_avg)
-        means = _peaks.mean(axis=0)
+
+        if robust:
+            centers = _peaks.median(axis=0)
+        else:
+            centers = _peaks.mean(axis=0)
     else:
-        means = peaks.mean(axis=0)
-    print("means:")
-    print(f"{means.iloc[:]}")
+        if robust:
+            centers = peaks.median(axis=0)
+        else:
+            centers = peaks.mean(axis=0)
+    print("centers:")
+    print(f"{centers.iloc[:]}")
+    print()
 
     _index = peaks.index
     _columns = peaks.columns
     peaks = peaks.to_numpy()
 
-    for i in range(len(means)):
+    for i in range(len(centers)):
         if gtet:
-            peaks[:, i] = peaks[:, i] >= means.iloc[i]
+            peaks[:, i] = peaks[:, i] >= centers.iloc[i]
         else:
-            peaks[:, i] = peaks[:, i] > means.iloc[i]
+            peaks[:, i] = peaks[:, i] > centers.iloc[i]
     peaks_bin = peaks.astype(int)
+
+    # 0と1の比率を出力する
+    prop = peaks.sum(axis=0) / len(_index)
+    print("1 appearance rate")
+    print(pd.DataFrame(np.array([prop]).T, columns=["rate"], index=_columns))
+    print()
+    # print(pd.DataFrame(np.array([prop]).T, index=_index, columns=["rate(0 or 1)"]))
 
     if negative_inactive:
         # 0を-1に変換
@@ -134,6 +150,7 @@ def run_common(
         gtet=options.gtet,
         negative_inactive=options.negative_inactive,
         ignore_for_avg=options.ignore_for_avg,
+        robust=options.robust_th,
     )
     typer.echo(bins)
     bins.to_csv(f"{options.outdir}/bins_{mode}.csv")

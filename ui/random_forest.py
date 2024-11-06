@@ -51,6 +51,10 @@ def ela(
         None,
         help="Threshold for energy",
     ),
+    weighted_count: bool = typer.Option(
+        False,
+        help="Use weighted count",
+    ),
     n_estimators: int = typer.Option(100, help="Number of trees in the forest"),
     random_state: int = typer.Option(0, help="Random state"),
     criterion: str = typer.Option("gini", help="Criterion"),
@@ -72,7 +76,7 @@ def ela(
     )
 
     # ELAを計算する
-    run_ela(bins, energy_threshold=energy_th)
+    run_ela(bins, energy_threshold=energy_th, weighted_count=weighted_count)
 
 
 if __name__ == "__main__":
