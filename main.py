@@ -1,17 +1,18 @@
-import typer
 from typing import Optional
-import pandas as pd
-import numpy as np
 
-from ui.manual import manual
-from ui.peak import peak
-from ui.levene import levene
-from ui.pc1 import pc1
-from ui.cv import cv
-from ui.robust_cv import robust_cv
-from ui.mvi import mvi
-from ui.random_forest import random_forest
+import numpy as np
+import pandas as pd
+import typer
+
 from domain.common_option import common_options_callback
+from ui.cv import cv
+from ui.levene import levene
+from ui.manual import manual
+from ui.mvi import mvi
+from ui.pc1 import pc1
+from ui.peak import peak
+from ui.random_forest import random_forest
+from ui.robust_cv import robust_cv
 
 app = typer.Typer()
 app.add_typer(manual, name="manual")
@@ -28,9 +29,7 @@ app.add_typer(random_forest, name="random-forest")
 def testdata(
     row: int = typer.Option(100, help="The number of row(samples)"),
     col: int = typer.Option(10, help="The number of column(features)"),
-    path: str = typer.Option(
-        "data/testdata.csv", help="The path of the output file"
-    ),
+    path: str = typer.Option("data/testdata.csv", help="The path of the output file"),
 ):
     df = pd.DataFrame(
         np.random.randn(row, col),
@@ -50,10 +49,7 @@ def callback(
         None,
         help="List of exclude states for calculation",
     ),
-    outdir: str = typer.Option(
-        "output",
-        help="Output directory"
-    ),
+    outdir: str = typer.Option("output", help="Output directory"),
     distance: float = typer.Option(
         10.0,
         help="Minimum distance between peaks",
