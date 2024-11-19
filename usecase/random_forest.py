@@ -1,6 +1,6 @@
+import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-import numpy as np
 
 
 def select_random_forest(

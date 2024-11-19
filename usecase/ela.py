@@ -1,6 +1,7 @@
-from elapy import elapy as ela
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
+
+from elapy import elapy as ela
 
 
 def bind_state_label_with_state_no(_data, graph):
@@ -25,9 +26,7 @@ def bind_state_label_with_state_no(_data, graph):
     data["state_no"] = data["binary"].map(
         lambda x: [k for k, v in state_no_bins.items() if x in v][0]
     )
-    data["energy"] = data["binary"].map(
-        lambda x: graph.loc[int(x, 2), "energy"]
-    )
+    data["energy"] = data["binary"].map(lambda x: graph.loc[int(x, 2), "energy"])
     data = data[["state_no", "binary", "energy"]]
     return data
 
@@ -74,19 +73,14 @@ def calc_increments(data, x, y, normalize=False):
         n_classes = len(data[x].unique())
         ideal = 1 / n_classes
         actual = data[x].value_counts(normalize=True)
-        increments = {
-            i: ideal / actual[i] for i in data[x].unique()
-        }
+        increments = {i: ideal / actual[i] for i in data[x].unique()}
     else:
         increments = {i: 1 for i in data[x].unique()}
     return increments
 
 
 def count_x_in_each_y(
-    data: pd.DataFrame,
-    x: str = "index",
-    y: str = "state_no",
-    normalize: bool = False
+    data: pd.DataFrame, x: str = "index", y: str = "state_no", normalize: bool = False
 ):
     print(data.loc[:, [x, y]])
     increments = calc_increments(data, x, y, normalize)
@@ -99,9 +93,7 @@ def count_x_in_each_y(
         counter[_y][_x] += increments[_x]
 
     # np.float64を組み込みのfloatに変換する
-    counter = {
-        k: {k_: float(v_) for k_, v_ in v.items()} for k, v in counter.items()
-    }
+    counter = {k: {k_: float(v_) for k_, v_ in v.items()} for k, v in counter.items()}
     count = pd.DataFrame(counter).T
     print(count)
     ratio = count.div(count.sum(axis=1), axis=0)
@@ -152,10 +144,22 @@ def run_ela(data, energy_threshold=None, weighted_count=False):
 
     bind_data = bind_state_label_with_state_no(data, graph)
 
-    count, ratio = count_state_no_in_each_label(bind_data, normalize=weighted_count, energy_threshold=energy_threshold)
-    count2, ratio2 = count_label_in_each_state(bind_data, normalize=weighted_count, energy_threshold=energy_threshold)
+    count, ratio = count_state_no_in_each_label(
+        bind_data, normalize=weighted_count, energy_threshold=energy_threshold
+    )
+    count2, ratio2 = count_label_in_each_state(
+        bind_data, normalize=weighted_count, energy_threshold=energy_threshold
+    )
 
-    plot_stack_bar(ratio, x="Label", legend_name="State no.", output_path="fig_ratio_state_no.png")
-    plot_stack_bar(ratio2, x="State no.", legend_name="Label", output_path="fig_ratio_label.png")
-    plot_stack_bar(count, x="Label", legend_name="State no.", output_path="fig_count_state_no.png")
-    plot_stack_bar(count2, x="State no.", legend_name="Label", output_path="fig_count_label.png")
+    plot_stack_bar(
+        ratio, x="Label", legend_name="State no.", output_path="fig_ratio_state_no.png"
+    )
+    plot_stack_bar(
+        ratio2, x="State no.", legend_name="Label", output_path="fig_ratio_label.png"
+    )
+    plot_stack_bar(
+        count, x="Label", legend_name="State no.", output_path="fig_count_state_no.png"
+    )
+    plot_stack_bar(
+        count2, x="State no.", legend_name="Label", output_path="fig_count_label.png"
+    )
