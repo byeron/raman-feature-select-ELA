@@ -1,6 +1,7 @@
 import typer
-from usecase.common import line_plot, run_common
+
 from domain.common_option import get_common_options
+from usecase.common import line_plot, plot_hist, run_common
 from usecase.ela import run_ela
 
 peak = typer.Typer()
@@ -14,10 +15,11 @@ def bin(
     top_n: int = typer.Option(7, help="Number of peaks"),
 ):
     options = get_common_options(ctx)
-    _, indices, origin = run_common(path, top_n, mode, options)
+    _, indices, origin, thresholds = run_common(path, top_n, mode, options)
 
     if options.viz:
         line_plot(indices, origin, mode, options.imgdir)
+        plot_hist(path, indices, thresholds, mode, options.imgdir)
 
 
 @peak.command()
@@ -38,10 +40,10 @@ def ela(
     weighted_count: bool = typer.Option(
         False,
         help="Use weighted count",
-    )
+    ),
 ):
     options = get_common_options(ctx)
-    bins, _, _ = run_common(path, top_n, mode, options)
+    bins, _, _, _ = run_common(path, top_n, mode, options)
 
     # ELAを計算する
     run_ela(bins, energy_threshold=energy_th, weighted_count=weighted_count)

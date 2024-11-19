@@ -1,7 +1,7 @@
 import typer
 
-from usecase.common import line_plot, run_common
 from domain.common_option import get_common_options
+from usecase.common import line_plot, plot_hist, run_common
 from usecase.ela import run_ela
 
 pc1 = typer.Typer()
@@ -16,10 +16,11 @@ def bin(
 ):
     # PCAの第一主成分の重みの上位を選択する
     options = get_common_options(ctx)
-    _, indices, weights = run_common(path, top_n, mode, options)
+    _, indices, weights, thresholds = run_common(path, top_n, mode, options)
 
     if options.viz:
         line_plot(indices, weights, mode, options.imgdir)
+        plot_hist(path, indices, thresholds, mode, options.imgdir)
 
 
 @pc1.command()
@@ -43,7 +44,7 @@ def ela(
     ),
 ):
     options = get_common_options(ctx)
-    bins, _, _ = run_common(path, top_n, mode, options)
+    bins, _, _, _ = run_common(path, top_n, mode, options)
 
     # ELAを計算する
     run_ela(bins, energy_threshold=energy_th, weighted_count=weighted_count)

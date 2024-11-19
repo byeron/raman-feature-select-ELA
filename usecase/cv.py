@@ -1,4 +1,5 @@
 import pandas as pd
+
 from usecase.detect_peaks import detect_peaks
 
 

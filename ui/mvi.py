@@ -1,7 +1,7 @@
 import typer
 
-from usecase.common import line_plot, run_common
 from domain.common_option import get_common_options
+from usecase.common import line_plot, plot_hist, run_common
 from usecase.ela import run_ela
 
 mvi = typer.Typer()
@@ -16,10 +16,11 @@ def bin(  # Median Variablity Index, 中央値変動指数
 ):
 
     options = get_common_options(ctx)
-    _, indices, origin = run_common(path, top_n, mode, options)
+    _, indices, origin, thresholds = run_common(path, top_n, mode, options)
 
     if options.viz:
         line_plot(indices, origin, mode, options.imgdir)
+        plot_hist(path, indices, thresholds, mode, options.imgdir)
 
 
 @mvi.command()
@@ -43,7 +44,7 @@ def ela(
     ),
 ):
     options = get_common_options(ctx)
-    bins, _, _ = run_common(path, top_n, mode, options)
+    bins, _, _, _ = run_common(path, top_n, mode, options)
 
     # ELAを計算する
     run_ela(bins, energy_threshold=energy_th, weighted_count=weighted_count)

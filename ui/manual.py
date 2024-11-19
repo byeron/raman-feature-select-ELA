@@ -1,25 +1,21 @@
-import typer
-import pandas as pd
-import numpy as np
-
 from typing import Optional
-from elapy import elapy
-from usecase.manual import select_manual
-from usecase.common import binarize, display_data_per_pattern
-from domain.common_option import get_common_options
-from usecase.ela import run_ela
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import typer
+
+from domain.common_option import get_common_options
+from elapy import elapy
+from usecase.common import binarize, display_data_per_pattern, plot_hist
+from usecase.ela import run_ela
+from usecase.manual import select_manual
 
 manual = typer.Typer()
 mode = "manual"
 
 
-def common(
-    path: str,
-    x: Optional[list[str]],
-    mode: str,
-    options
-):
+def common(path: str, x: Optional[list[str]], mode: str, options):
     df = pd.read_csv(path, index_col=0, header=0)
 
     # indexを文字列に変換
@@ -30,7 +26,7 @@ def common(
         df = df.drop(options.remove_state)
 
     indices, origin = select_manual(df, x)
-    bins = binarize(
+    bins, thresholds = binarize(
         df,
         indices,
         gtet=options.gtet,
@@ -46,7 +42,7 @@ def common(
     typer.echo(f"Accuracy: {acc1}, {acc2}")
     display_data_per_pattern(bins)
 
-    return bins, indices, origin
+    return bins, indices, origin, thresholds
 
 
 @manual.command()
@@ -60,7 +56,7 @@ def bin(
     if x is None:
         typer.echo("No features selected")
         return
-    bins, indices, origin = common(path, x, mode, options)
+    bins, indices, origin, thresholds = common(path, x, mode, options)
 
     if options.viz:
 
@@ -72,6 +68,8 @@ def bin(
         ax.set_xticklabels(np.arange(0, len(origin), 100))
         plt.tight_layout()
         fig.savefig(f"{options.imgdir}/manual.png")
+
+        plot_hist(path, indices, thresholds, mode, options.imgdir)
 
 
 @manual.command()
@@ -92,7 +90,7 @@ def ela(
     ),
 ):
     options = get_common_options(ctx)
-    bins, indices, origin = common(path, x, mode, options)
+    bins, indices, origin, _ = common(path, x, mode, options)
 
     # ELAを計算する
     run_ela(bins, energy_threshold=energy_th, weighted_count=weighted_count)
