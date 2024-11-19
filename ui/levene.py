@@ -1,9 +1,9 @@
-import typer
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import typer
 
-from usecase.common import run_common
 from domain.common_option import get_common_options
+from usecase.common import plot_hist, run_common
 from usecase.ela import run_ela
 
 levene = typer.Typer()
@@ -20,7 +20,7 @@ def bin(
     # Levene検定をもとに特徴量を選択する
     typer.echo("Processing...")
     options = get_common_options(ctx)
-    _, indices, origin = run_common(path, top_n, mode, options)
+    _, indices, origin, thresholds = run_common(path, top_n, mode, options)
 
     if options.viz:
         fig = plt.figure(figsize=(9, 6))
@@ -34,6 +34,8 @@ def bin(
         ax.set_ylabel("-log(p-value)")
         plt.tight_layout()
         fig.savefig(f"{options.imgdir}/levene.png")
+
+        plot_hist(path, indices, thresholds, mode, options.imgdir)
 
 
 @levene.command()
@@ -57,7 +59,7 @@ def ela(
     ),
 ):
     options = get_common_options(ctx)
-    bins, _, _ = run_common(path, top_n, mode, options)
+    bins, _, _, _ = run_common(path, top_n, mode, options)
 
     # ELAを計算する
     run_ela(bins, energy_threshold=energy_th, weighted_count=weighted_count)

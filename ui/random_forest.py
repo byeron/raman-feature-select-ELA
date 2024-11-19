@@ -1,6 +1,7 @@
 import typer
-from usecase.common import line_plot, run_common_rf
+
 from domain.common_option import get_common_options
+from usecase.common import line_plot, plot_hist, run_common_rf
 from usecase.ela import run_ela
 
 random_forest = typer.Typer()
@@ -20,7 +21,7 @@ def bin(
     bootstrap: bool = typer.Option(True, help="Bootstrap"),
 ):
     options = get_common_options(ctx)
-    _, indices, origin = run_common_rf(
+    _, indices, origin, thresholds = run_common_rf(
         path,
         top_n,
         options,
@@ -34,6 +35,7 @@ def bin(
 
     if options.viz:
         line_plot(indices, origin, mode, options.imgdir)
+        plot_hist(path, indices, thresholds, mode, options.imgdir)
 
 
 @random_forest.command()
@@ -63,7 +65,7 @@ def ela(
     bootstrap: bool = typer.Option(True, help="Bootstrap"),
 ):
     options = get_common_options(ctx)
-    bins, _, _ = run_common_rf(
+    bins, _, _, _ = run_common_rf(
         path,
         top_n,
         options,
@@ -72,7 +74,7 @@ def ela(
         criterion,
         max_depth,
         min_samples_leaf,
-        bootstrap
+        bootstrap,
     )
 
     # ELAを計算する

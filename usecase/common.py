@@ -1,16 +1,16 @@
-import typer
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
+import typer
 
-from usecase.robust_cv import select_robust_cv
+from elapy import elapy
 from usecase.cv import select_cv
-from usecase.pc1 import select_pc1
 from usecase.levene import select_levene
 from usecase.mvi import select_mvi
+from usecase.pc1 import select_pc1
 from usecase.peak import select_peak
 from usecase.random_forest import select_random_forest
-from elapy import elapy
+from usecase.robust_cv import select_robust_cv
 
 
 def binarize(
@@ -63,19 +63,19 @@ def binarize(
         peaks_bin = np.where(peaks_bin == 0, -1, peaks_bin)
 
     peaks_bin = pd.DataFrame(peaks_bin, index=_index, columns=_columns)
-    return peaks_bin.T
+    return peaks_bin.T, centers
 
 
 def run_common_rf(
-        path: str,
-        top_n,
-        options,
-        n_estimators: int,
-        random_state: int,
-        criterion: str,
-        max_depth: int,
-        min_samples_leaf: int,
-        bootstrap: bool,
+    path: str,
+    top_n,
+    options,
+    n_estimators: int,
+    random_state: int,
+    criterion: str,
+    max_depth: int,
+    min_samples_leaf: int,
+    bootstrap: bool,
 ):
     df = pd.read_csv(path, index_col=0, header=0)
     indices, origin = select_random_forest(
@@ -89,7 +89,7 @@ def run_common_rf(
         bootstrap,
     )
 
-    bins = binarize(
+    bins, thresholds = binarize(
         df,
         indices,
         gtet=options.gtet,
@@ -105,7 +105,7 @@ def run_common_rf(
     typer.echo(f"Accuracy:\t{acc1}, {acc2}")
     display_data_per_pattern(bins)
 
-    return bins, indices, origin
+    return bins, indices, origin, thresholds
 
 
 def run_common(
@@ -144,7 +144,7 @@ def run_common(
     )
 
     # バイナリ化
-    bins = binarize(
+    bins, thresholds = binarize(
         df,
         indices,
         gtet=options.gtet,
@@ -162,7 +162,7 @@ def run_common(
     typer.echo(f"Accuracy:\t{acc1}, {acc2}")
     display_data_per_pattern(bins)
 
-    return bins, indices, origin
+    return bins, indices, origin, thresholds
 
 
 def line_plot(indices, origin, mode, outdir):
@@ -174,6 +174,22 @@ def line_plot(indices, origin, mode, outdir):
     ax.set_xticklabels(np.arange(0, len(origin), 100))
     plt.tight_layout()
     fig.savefig(f"{outdir}/{mode}.png")
+
+
+def plot_hist(path, indices, thresholds, mode, outdir):
+    fig = plt.figure(figsize=(9, 16))
+    df = pd.read_csv(path, index_col=0)
+    print("### DEBUG: plot hist")
+    df = df.iloc[:, indices]  # Pickup selected features
+    for n, ((columns_name, item), threshold) in enumerate(
+        zip(df.items(), thresholds), start=1
+    ):
+        ax = fig.add_subplot(len(indices), 1, n)
+        ax.hist(item, bins=30)
+        ax.axvline(threshold, ymin=0, ymax=30, color="tab:red")
+        ax.set_ylabel(f"frequency ({columns_name})")
+    plt.tight_layout()
+    fig.savefig(f"{outdir}/hist_{mode}.png")
 
 
 def get_data_per_pattern(bins):

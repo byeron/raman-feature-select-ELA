@@ -1,5 +1,6 @@
-import typer
 from typing import Optional
+
+import typer
 
 
 class CommonOptions:
@@ -38,19 +39,14 @@ def common_options_callback(
         None,
         help="List of states to remove",
     ),
-    outdir: str = typer.Option(
-        "output",
-        help="Output directory"
-        ),
+    outdir: str = typer.Option("output", help="Output directory"),
     distance: float = typer.Option(
         10.0,
         help="Minimum distance between peaks",
     ),
     delta: float = typer.Option(0.1, help="Step for peak search"),
     top: float = typer.Option(None, help="Max value for peak search"),
-    bottom: float = typer.Option(
-        None, help="Min value for peak search"
-        ),
+    bottom: float = typer.Option(None, help="Min value for peak search"),
     gtet: bool = typer.Option(
         True,
         help="Greater than(False) or equal(True, default) to the mean",
